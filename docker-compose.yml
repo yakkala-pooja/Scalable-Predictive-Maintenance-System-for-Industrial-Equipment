@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  # Kafka and Zookeeper
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+
+  # Predictive Maintenance API
+  predictive-maintenance-api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./checkpoints:/app/checkpoints
+      - ./transformer_data:/app/transformer_data
+    environment:
+      - MODEL_CKPT_DIR=/app/checkpoints
+      - METADATA_PATH=/app/transformer_data/metadata.json
+    depends_on:
+      - kafka
+    restart: unless-stopped
+
+  # Kafka Producer (Sensor Data Simulator)
+  kafka-producer:
+    build: .
+    command: python kafka_streaming/kafka_producer.py --bootstrap-servers kafka:9092 --topic sensor-data --interval 2.0 --max-cycles 100
+    volumes:
+      - ./kafka_streaming:/app/kafka_streaming
+    depends_on:
+      - kafka
+      - predictive-maintenance-api
+    restart: unless-stopped
+
+  # Kafka Consumer (RUL Predictor and Alert Generator)
+  kafka-consumer:
+    build: .
+    command: python kafka_streaming/kafka_consumer.py --bootstrap-servers kafka:9092 --topic sensor-data --api-url http://predictive-maintenance-api:8000/predict --window-size 30 --alert-threshold 25
+    volumes:
+      - ./kafka_streaming:/app/kafka_streaming
+    depends_on:
+      - kafka
+      - predictive-maintenance-api
+    restart: unless-stopped
+
+  # Optional: Kafka UI for monitoring
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+    depends_on:
+      - kafka
+    restart: unless-stopped
+
+networks:
+  default:
+    name: predictive-maintenance-network 

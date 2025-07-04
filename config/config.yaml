@@ -1,0 +1,241 @@
+# Configuration file for Scalable Predictive Maintenance System
+
+# Data Configuration
+data:
+  # Dataset IDs to process
+  dataset_ids: ['FD001', 'FD002', 'FD003', 'FD004']
+  
+  # Data directory
+  data_dir: 'data'
+  
+  # Validation set size as fraction of training data
+  validation_size: 0.2
+  
+  # Random seed for reproducibility
+  random_seed: 42
+  
+  # Window size for sequence data
+  window_size: 30
+  
+  # Prediction horizon
+  horizon: 1
+
+# Preprocessing Configuration
+preprocessing:
+  # Normalization method ('minmax', 'standard', 'robust')
+  normalization_method: 'minmax'
+  
+  # Whether to handle missing values
+  handle_missing_values: true
+  
+  # Missing value strategy ('drop', 'interpolate', 'fill_mean', 'fill_median')
+  missing_value_strategy: 'interpolate'
+  
+  # Whether to add engineered features
+  add_engineered_features: true
+  
+  # Feature engineering options
+  feature_engineering:
+    # Add rolling statistics
+    rolling_stats: true
+    rolling_window: 5
+    
+    # Add lag features
+    lag_features: true
+    lag_periods: [1, 2, 3]
+    
+    # Add difference features
+    diff_features: true
+
+# Model Configuration
+model:
+  # Model type ('tft', 'lstm', 'gru', 'transformer')
+  type: 'tft'
+  
+  # Model parameters
+  tft:
+    hidden_size: 64
+    attention_head_size: 4
+    dropout: 0.1
+    num_lstm_layers: 2
+    num_attention_heads: 4
+    learning_rate: 0.001
+    context_size: 64
+  
+  lstm:
+    hidden_size: 64
+    num_layers: 1
+    dropout: 0.1
+    learning_rate: 0.001
+
+# Training Configuration
+training:
+  # Batch size
+  batch_size: 64
+  
+  # Maximum number of epochs
+  max_epochs: 50
+  
+  # Early stopping patience
+  patience: 10
+  
+  # Learning rate scheduler
+  lr_scheduler:
+    type: 'ReduceLROnPlateau'
+    factor: 0.5
+    patience: 3
+    min_lr: 1e-6
+  
+  # Gradient clipping
+  gradient_clip_val: 1.0
+  
+  # Mixed precision training
+  use_mixed_precision: true
+  
+  # Number of workers for data loading
+  num_workers: 4
+  
+  # Pin memory for faster GPU transfer
+  pin_memory: true
+
+# Hardware Configuration
+hardware:
+  # Number of GPUs to use (None = use all available)
+  num_gpus: null
+  
+  # Strategy for multi-GPU training ('ddp', 'dp', 'ddp_spawn')
+  strategy: 'ddp'
+  
+  # Whether to use deterministic training
+  deterministic: false
+
+# Parallel Processing Configuration
+parallel:
+  # Number of workers for parallel processing
+  n_workers: null  # None = auto-detect
+  
+  # Whether to use Dask for parallel processing
+  use_dask: true
+  
+  # Dask configuration
+  dask:
+    # Memory limit per worker (in MB)
+    memory_limit: '2GB'
+    
+    # Number of threads per worker
+    threads_per_worker: 1
+    
+    # Whether to use local cluster
+    local_cluster: true
+
+# Logging Configuration
+logging:
+  # Log level ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL')
+  level: 'INFO'
+  
+  # Log directory
+  log_dir: 'logs'
+  
+  # Log file prefix
+  log_file_prefix: 'predictive_maintenance'
+  
+  # Console output
+  console_output: true
+  
+  # File output
+  file_output: true
+  
+  # Maximum log file size (in bytes)
+  max_file_size: 10485760  # 10MB
+  
+  # Number of backup log files
+  backup_count: 5
+
+# Evaluation Configuration
+evaluation:
+  # Metrics to compute
+  metrics: ['mae', 'rmse', 'mape', 'r2', 'precision_25']
+  
+  # Whether to generate plots
+  generate_plots: true
+  
+  # Plot directory
+  plot_dir: 'evaluation_plots'
+  
+  # Whether to save predictions
+  save_predictions: true
+  
+  # Prediction file format ('csv', 'npy', 'json')
+  prediction_format: 'csv'
+
+# Feature Importance Configuration
+feature_importance:
+  # Whether to compute feature importance
+  enabled: true
+  
+  # Method for feature importance ('attention', 'permutation', 'shap')
+  method: 'attention'
+  
+  # Number of samples for permutation importance
+  n_samples: 1000
+  
+  # Whether to generate feature importance plots
+  generate_plots: true
+
+# Model Persistence Configuration
+persistence:
+  # Checkpoint directory
+  checkpoint_dir: 'checkpoints'
+  
+  # Number of best checkpoints to keep
+  save_top_k: 3
+  
+  # Whether to save model artifacts
+  save_artifacts: true
+  
+  # Artifacts directory
+  artifacts_dir: 'artifacts'
+  
+  # Artifacts to save
+  artifacts:
+    - 'model'
+    - 'scaler'
+    - 'config'
+    - 'metadata'
+
+# Monitoring Configuration
+monitoring:
+  # Whether to enable monitoring
+  enabled: true
+  
+  # Monitoring metrics
+  metrics:
+    - 'train_loss'
+    - 'val_loss'
+    - 'train_mae'
+    - 'val_mae'
+    - 'learning_rate'
+    - 'epoch'
+  
+  # Monitoring interval (in epochs)
+  interval: 1
+  
+  # Whether to log to TensorBoard
+  tensorboard: true
+  
+  # TensorBoard log directory
+  tensorboard_dir: 'lightning_logs'
+
+# Performance Configuration
+performance:
+  # Whether to profile performance
+  profiling: false
+  
+  # Profiling output directory
+  profiling_dir: 'profiling'
+  
+  # Memory profiling
+  memory_profiling: false
+  
+  # GPU memory profiling
+  gpu_memory_profiling: false 

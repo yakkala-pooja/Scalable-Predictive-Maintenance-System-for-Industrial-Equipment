@@ -1,0 +1,17 @@
+numpy>=1.19.0
+pandas>=1.1.0
+scikit-learn>=0.24.0
+matplotlib>=3.3.0
+pytorch-lightning>=1.5.0
+torch>=1.9.0
+dask>=2023.3.0
+dask[distributed]>=2023.3.0
+dask-ml>=2023.3.0
+bokeh>=2.4.0  # For Dask dashboard
+fastapi>=0.68.0
+uvicorn[standard]>=0.15.0
+requests>=2.25.0
+kafka-python>=2.0.0
+joblib>=1.1.0
+pyyaml>=5.4.0
+pytest>=6.0.0 
